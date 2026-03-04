@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Pokédex Save Version</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:#1e1e2f;
+    color:white;
+}
+
+header{
+    text-align:center;
+    padding:20px;
+    font-size:26px;
+    font-weight:bold;
+}
+
+.container{
+    display:grid;
+    grid-template-columns: repeat(auto-fill,minmax(170px,1fr));
+    gap:15px;
+    padding:20px;
+}
+
+.card{
+    background:#2b2b3f;
+    border-radius:12px;
+    padding:15px;
+    position:relative;
+}
+
+.number{
+    position:absolute;
+    top:8px;
+    left:10px;
+    font-size:12px;
+    background:black;
+    padding:2px 6px;
+    border-radius:6px;
+}
+
+.image-box{
+    width:100%;
+    height:140px;
+    background:#1a1a2e;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    margin-top:18px;
+}
+
+.image-box img{
+    max-width:100%;
+    max-height:100%;
+}
+
+.plus{
+    font-size:35px;
+    opacity:0.5;
+}
+
+input[type="file"]{
+    display:none;
+}
+
+input{
+    width:100%;
+    margin-top:5px;
+    background:#3a3a55;
+    border:none;
+    color:white;
+    text-align:center;
+    border-radius:5px;
+}
+</style>
+</head>
+
+<body>
+
+<header>POKÉDEX 1500 SAVE VERSION</header>
+<div class="container" id="pokedex"></div>
+
+<script>
+const container = document.getElementById("pokedex");
+let savedData = JSON.parse(localStorage.getItem("dex")) || {};
+
+for(let i=1;i<=1500;i++){
+
+    const card=document.createElement("div");
+    card.className="card";
+
+    const number=document.createElement("div");
+    number.className="number";
+    number.textContent="#"+i.toString().padStart(4,'0');
+
+    const label=document.createElement("label");
+    label.className="image-box";
+
+    const inputFile=document.createElement("input");
+    inputFile.type="file";
+    inputFile.accept="image/*";
+
+    const plus=document.createElement("div");
+    plus.className="plus";
+    plus.innerHTML="+";
+
+    const img=document.createElement("img");
+
+    if(savedData[i]){
+        if(savedData[i].image){
+            img.src=savedData[i].image;
+            plus.style.display="none";
+        }
+    }
+
+    inputFile.addEventListener("change",function(){
+        const file=this.files[0];
+        if(!file) return;
+
+        const reader=new FileReader();
+        reader.onload=function(e){
+            img.src=e.target.result;
+            plus.style.display="none";
+
+            if(!savedData[i]) savedData[i]={};
+            savedData[i].image=e.target.result;
+
+            localStorage.setItem("dex",JSON.stringify(savedData));
+        }
+        reader.readAsDataURL(file);
+    });
+
+    label.appendChild(plus);
+    label.appendChild(img);
+    label.appendChild(inputFile);
+
+    const nameInput=document.createElement("input");
+    nameInput.placeholder="Tên Pokémon";
+    nameInput.value=savedData[i]?.name || "";
+
+    nameInput.oninput=function(){
+        if(!savedData[i]) savedData[i]={};
+        savedData[i].name=this.value;
+        localStorage.setItem("dex",JSON.stringify(savedData));
+    }
+
+    const formInput=document.createElement("input");
+    formInput.placeholder="Form";
+    formInput.value=savedData[i]?.form || "";
+
+    formInput.oninput=function(){
+        if(!savedData[i]) savedData[i]={};
+        savedData[i].form=this.value;
+        localStorage.setItem("dex",JSON.stringify(savedData));
+    }
+
+    card.appendChild(number);
+    card.appendChild(label);
+    card.appendChild(nameInput);
+    card.appendChild(formInput);
+
+    container.appendChild(card);
+}
+</script>
+
+</body>
+</html>
